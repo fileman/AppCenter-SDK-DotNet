@@ -205,6 +205,11 @@
       <Project>{0DBD983F-BD8F-4BD6-B08A-AD28457D35EF}</Project>
       <Name>Microsoft.AppCenter.Data.iOS.Bindings</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Contoso.iOS.Puppet.TodayExtension\Contoso.iOS.Puppet.TodayExtension.csproj">
+      <IsAppExtension>true</IsAppExtension>
+      <Project>{38100CAA-64B6-40F5-85B8-1B58103F648B}</Project>
+      <Name>Contoso.iOS.Puppet.TodayExtension</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\bolt%402x.png" />
