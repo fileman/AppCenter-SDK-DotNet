@@ -118,11 +118,6 @@ namespace Microsoft.AppCenter.Utils
 
         public ApplicationLifecycleHelper()
         {
-            Enabled = true;
-
-            // Add the event handler for handling UI thread exceptions to the event.
-            Application.ThreadException += (sender, args) => InvokeUnhandledException(sender, args.Exception);
-
             // Add the event handler for handling non-UI thread exceptions to the event. 
             AppDomain.CurrentDomain.UnhandledException += (sender, args) => InvokeUnhandledException(sender, args.ExceptionObject as Exception);
         }

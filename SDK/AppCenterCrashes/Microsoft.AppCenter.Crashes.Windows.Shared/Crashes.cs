@@ -165,6 +165,7 @@ namespace Microsoft.AppCenter.Crashes
                 if (enabled && ChannelGroup != null)
                 {
                     ApplicationLifecycleHelper.Instance.UnhandledExceptionOccurred += OnUnhandledExceptionOccurred;
+                    SetThreadExceptionHandlerInWinForms();
                     ChannelGroup.SendingLog += ChannelSendingLog;
                     ChannelGroup.SentLog += ChannelSentLog;
                     ChannelGroup.FailedToSendLog += ChannelFailedToSendLog;
@@ -172,6 +173,7 @@ namespace Microsoft.AppCenter.Crashes
                 else if (!enabled)
                 {
                     ApplicationLifecycleHelper.Instance.UnhandledExceptionOccurred -= OnUnhandledExceptionOccurred;
+                    UnsetThreadExceptionHandlerInWinForms();
                     if (ChannelGroup != null)
                     {
                         ChannelGroup.SendingLog -= ChannelSendingLog;
@@ -475,5 +477,36 @@ namespace Microsoft.AppCenter.Crashes
             }
             return null;
         }
+
+        private void SetThreadExceptionHandlerInWinForms()
+        {
+            // If not UWP and not WPF, this must be WinForms.
+#if !WINDOWS_UWP
+            if (!WpfHelper.IsRunningOnWpf)
+            {
+                System.Windows.Forms.Application.SetUnhandledExceptionMode(System.Windows.Forms.UnhandledExceptionMode.ThrowException);
+                System.Windows.Forms.Application.ThreadException += HandleThreadException;
+            }
+#endif
+        }
+        private void UnsetThreadExceptionHandlerInWinForms()
+        {
+            // If not UWP and not WPF, this must be WinForms.
+#if !WINDOWS_UWP
+            if (!WpfHelper.IsRunningOnWpf)
+            {
+                System.Windows.Forms.Application.ThreadException -= HandleThreadException;
+                System.Windows.Forms.Application.SetUnhandledExceptionMode(System.Windows.Forms.UnhandledExceptionMode.Automatic);
+            }
+#endif
+        }
+
+#if !WINDOWS_UWP
+        private void HandleThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
+        {
+            var args = new UnhandledExceptionOccurredEventArgs(e.Exception);
+            OnUnhandledExceptionOccurred(sender, args);
+        }
+#endif
     }
 }
