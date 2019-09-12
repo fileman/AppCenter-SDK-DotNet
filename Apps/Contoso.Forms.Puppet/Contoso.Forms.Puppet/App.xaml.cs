@@ -74,7 +74,7 @@ namespace Contoso.Forms.Puppet
 
                 Distribute.SetInstallUrl("https://install.portal-server-core-integration.dev.avalanch.es");
                 Distribute.SetApiUrl("https://api-gateway-core-integration.dev.avalanch.es/v0.1");
-                Auth.SetConfigUrl("https://config-integration.dev.avalanch.es");
+                Auth.SetConfigUrl("https://mbaasapi0fde96d9b.blob.core.windows.net");
                 Data.SetTokenExchangeUrl("https://token-exchange-mbaas-integration.dev.avalanch.es/v0.1");
 
                 var appSecrets = GetAppSecretDictionary();
