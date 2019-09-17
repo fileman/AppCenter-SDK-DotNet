@@ -162,7 +162,7 @@ namespace Microsoft.AppCenter.Crashes.Utils
 
         private ManagedErrorLog InstanceCreateErrorLog(System.Exception exception)
         {
-            return new ManagedErrorLog
+            var log = new ManagedErrorLog
             {
                 Id = Guid.NewGuid(),
                 Timestamp = DateTime.UtcNow,
@@ -174,9 +174,10 @@ namespace Microsoft.AppCenter.Crashes.Utils
                 AppLaunchTimestamp = _processInformation.ProcessStartTime?.ToUniversalTime(),
                 Architecture = _processInformation.ProcessArchitecture,
                 Fatal = true,
-                Exception = CreateModelException(exception),
                 Sid = SessionContext.SessionId
             };
+            CrashReportInformationSupplier.AddToErrorReport(log, exception);
+            return log;
         }
 
         public virtual IEnumerable<File> InstanceGetErrorLogFiles()

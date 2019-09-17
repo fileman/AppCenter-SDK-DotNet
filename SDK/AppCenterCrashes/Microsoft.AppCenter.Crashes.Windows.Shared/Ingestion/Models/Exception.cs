@@ -48,6 +48,12 @@ namespace Microsoft.AppCenter.Crashes.Ingestion.Models
         public string Type { get; set; }
 
         /// <summary>
+        /// Gets or sets stack frames. Optional.
+        /// </summary>
+        [JsonProperty(PropertyName = "frames")]
+        public IList<StackFrame> Frames { get; set; }
+
+        /// <summary>
         /// Gets or sets exception reason.
         /// </summary>
         [JsonProperty(PropertyName = "message")]

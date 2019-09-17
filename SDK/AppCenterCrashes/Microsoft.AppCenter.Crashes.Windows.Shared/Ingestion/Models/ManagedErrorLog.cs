@@ -3,6 +3,7 @@
 
 using Microsoft.AppCenter.Ingestion.Models;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace Microsoft.AppCenter.Crashes.Ingestion.Models
 {
@@ -74,6 +75,16 @@ namespace Microsoft.AppCenter.Crashes.Ingestion.Models
         /// </summary>
         [JsonProperty(PropertyName = "exception")]
         public Exception Exception { get; set; }
+
+        /// <summary>
+        /// </summary>
+        [JsonProperty(PropertyName = "threads")]
+        public IList<Thread> Threads { get; set; }
+
+        /// <summary>
+        /// </summary>
+        [JsonProperty(PropertyName = "binaries")]
+        public IList<Binary> Binaries { get; set; }
 
         /// <summary>
         /// Validate the object.
