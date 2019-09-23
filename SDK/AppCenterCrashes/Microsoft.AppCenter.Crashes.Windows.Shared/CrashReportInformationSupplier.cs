@@ -69,22 +69,12 @@ namespace Microsoft.AppCenter.Crashes
                     {
                         continue;
                     }
-                    var reader = new ImageReader(frame.GetNativeImageBase());
-                    ImageReader.CodeViewDebugData codeView = reader.Parse();
-                    if (codeView == null)
+                    var binary = ImageToBinary(frame.GetNativeImageBase());
+                    if (binary != null)
                     {
-                        continue;
+                        log.Binaries.Add(binary);
+                        seenBinaries.Add(nativeImageBase);
                     }
-                    var crashBinary = new ModelBinary
-                    {
-                        StartAddress = string.Format(CultureInfo.InvariantCulture, "0x{0:x16}", nativeImageBase),
-                        EndAddress = string.Format(CultureInfo.InvariantCulture, "0x{0:x16}", codeView.EndAddress.ToInt64()),
-                        Path = codeView.PdbPath,
-                        Id = string.Format(CultureInfo.InvariantCulture, "{0:N}-{1}", codeView.Signature, codeView.Age),
-                        Name = string.IsNullOrEmpty(codeView.PdbPath) == false ? Path.GetFileNameWithoutExtension(codeView.PdbPath) : null
-                    };
-                    log.Binaries.Add(crashBinary);
-                    seenBinaries.Add(nativeImageBase);
                 }
             }
             if (outerException == null)
@@ -96,11 +86,35 @@ namespace Microsoft.AppCenter.Crashes
                 outerException.InnerExceptions.Add(modelException);
             }
         }
+
+#if WINDOWS_UWP
+        private static unsafe ModelBinary ImageToBinary(IntPtr imageBase)
+        {
+            var reader = new System.Reflection.PortableExecutable.PEReader((byte*)imageBase.ToPointer(), int.MaxValue, true);
+            var debugdir = reader.ReadDebugDirectory();
+            var codeViewEntry = debugdir.First(entry => entry.Type == System.Reflection.PortableExecutable.DebugDirectoryEntryType.CodeView);
+            var codeView = reader.ReadCodeViewDebugDirectoryData(codeViewEntry);
+            var pdbPath = Path.GetFileName(codeView.Path);
+            var endAddress = imageBase + reader.PEHeaders.PEHeader.SizeOfImage;
+            return new ModelBinary
+            {
+                StartAddress = string.Format(CultureInfo.InvariantCulture, "0x{0:x16}", imageBase.ToInt64()),
+                EndAddress = string.Format(CultureInfo.InvariantCulture, "0x{0:x16}", endAddress.ToInt64()),
+                Path = pdbPath,
+                Name = string.IsNullOrEmpty(pdbPath) == false ? Path.GetFileNameWithoutExtension(pdbPath) : null,
+                Id = string.Format(CultureInfo.InvariantCulture, "{0:N}-{1}", codeView.Guid, codeView.Age)
+            };
+        }
+#else
+        private static ModelBinary ImageToBinary(IntPtr imageBase)
+        {
+            return null;
+        }
+#endif
     }
 
     // TODO This can be removed if the code is moved to the UWP project.
 #if NET45
-
     // some place holders while I figure out if the PEReader/Native image debug info is accessible in a similar manner as the UWP implementaiton
     // TODO - repo case
     static class StackFrameExtensions
@@ -122,7 +136,5 @@ namespace Microsoft.AppCenter.Crashes
             return IntPtr.Add(GetNativeImageBase(stackFrame), stackFrame.GetNativeOffset());
         }
     }
-
 #endif
-
 }

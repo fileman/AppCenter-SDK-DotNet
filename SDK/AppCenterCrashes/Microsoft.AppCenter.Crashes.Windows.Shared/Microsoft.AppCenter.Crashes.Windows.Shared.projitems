@@ -13,7 +13,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)CrashReportInformationSupplier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorAttachmentLog.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorReport.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ImageReader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Ingestion\Models\AbstractErrorLog.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Ingestion\Models\Binary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Ingestion\Models\Exception.cs" />
