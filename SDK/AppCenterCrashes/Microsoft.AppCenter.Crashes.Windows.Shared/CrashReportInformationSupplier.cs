@@ -18,7 +18,6 @@ namespace Microsoft.AppCenter.Crashes
     {
         public static void AddToErrorReport(ManagedErrorLog log, System.Exception exception)
         {
-            log.Threads = new List<Thread> { new Thread(Environment.CurrentManagedThreadId, new List<ModelStackFrame>()) };
             log.Binaries = new List<ModelBinary>();
             AddExceptionInfo(log, null, exception, new HashSet<long>());
         }
@@ -62,7 +61,6 @@ namespace Microsoft.AppCenter.Crashes
                     {
                         Address = string.Format(CultureInfo.InvariantCulture, "0x{0:x16}", frame.GetNativeIP().ToInt64()),
                     };
-                    log.Threads[0].Frames.Add(crashFrame);
                     modelException.Frames.Add(crashFrame);
                     long nativeImageBase = frame.GetNativeImageBase().ToInt64();
                     if (seenBinaries.Contains(nativeImageBase) || nativeImageBase == 0)
@@ -86,10 +84,10 @@ namespace Microsoft.AppCenter.Crashes
                 outerException.InnerExceptions.Add(modelException);
             }
         }
-
 #if WINDOWS_UWP
         private static unsafe ModelBinary ImageToBinary(IntPtr imageBase)
         {
+            // TODO - we are told that this "int.MaxValue" is safe because PEReader will only read what it must read and thus won't go out of bounds. If this is a problem, some of the parsing code from HockeyApp can be ported to get an exact size.
             var reader = new System.Reflection.PortableExecutable.PEReader((byte*)imageBase.ToPointer(), int.MaxValue, true);
             var debugdir = reader.ReadDebugDirectory();
             var codeViewEntry = debugdir.First(entry => entry.Type == System.Reflection.PortableExecutable.DebugDirectoryEntryType.CodeView);
